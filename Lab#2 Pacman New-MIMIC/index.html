@@ -108,7 +108,6 @@ function preload() {
   RedGhost = loadImage('RedGhost.png');
   thePlayer = new PacMan();
   
-  // 加载音频文件
   pacmanSound = loadSound('Background.mp3', loaded);
 }
 
@@ -354,14 +353,13 @@ function draw() {
   textSize(24);
   text("Score: " + thePlayer.score, 20, height - 20);
   
-  // 播放音乐
   if (!pacmanSound.isPlaying()) {
     pacmanSound.play();
   }
 }
 
 function loaded() {
-  // 设置音量
+
   pacmanSound.setVolume(volumeLevel);
 }
 </script>
