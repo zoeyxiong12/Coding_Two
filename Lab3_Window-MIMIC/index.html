@@ -123,7 +123,7 @@ function setup() {
 
 function draw() {
   background(51);
-  // 绘制背景和其他元素
+  // draw background and the other elements
   fill(250, 238, 196);
   circle(150, 100, 80);
   fill(210, 31, 60);
@@ -134,7 +134,7 @@ function draw() {
   rect(620, 20, 20, 620);
   rect(20, 200, 600, 20);
   image(catImage, 430, 490, 130, 130);
-  // 更新和显示雪花
+  // upadte and display snow
   for (let flake of snowflakes) {
     flake.update();
     flake.display();
