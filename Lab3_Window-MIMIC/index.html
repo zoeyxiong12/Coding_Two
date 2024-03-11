@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    
+      <script>
+        window.onerror = function(error, url, line) {
+          parent.postMessage(["console", "\"Error on line[" + (line-1) + "]:" + error + "\""], "*")
+        };
+        window.addEventListener("unhandledrejection", function (event) {
+          parent.postMessage(["console", "\"Error:Uncaught " + event.reason + "\""], "*")
+        });
+        function prettyPrint(obj, indent = 0, seen = new Map()) {
+          
+          let result = '';
+          let baseIndent = ' '.repeat(indent);
+          let newIndent = baseIndent + '    ';
+          try {
+          if (seen.has(obj)) {
+              return `${baseIndent}"[Circular Reference (${seen.get(obj)})]"`;
+          }
+      
+          if (typeof obj === 'object' && obj !== null) {
+              seen.set(obj, seen.size + 1);
+      
+              if (Array.isArray(obj)) {
+                  result += '[';
+                  for (let i = 0; i < obj.length; i++) {
+                      if (i > 0) {
+                          result += ',';
+                      }
+                      const value = obj[i];
+                      if (typeof value === 'object' && value !== null) {
+                          result += '\n' + prettyPrint(value, indent + 4, seen);
+                      } else if (typeof value === 'string') {
+                          result += `\n${newIndent}"${value}"`;
+                      } else if (typeof value === 'function') {
+                        result += `\n${newIndent}"[Function]"`;
+                      }  else if (value === undefined) {
+                        result += `\n${newIndent}"[undefined]"`;
+                      }
+                      else {
+                        result += `\n${newIndent}${value}`;
+                      }
+                  }
+                  result += `\n${baseIndent}]`;
+              } else {
+                  result += '{\n';
+                  let entries = Object.keys(obj).map((key) => {
+                      const value = obj[key];
+                      let entry = `${newIndent}"${key}": `;
+                      if (typeof value === 'object' && value !== null) {
+                          entry += prettyPrint(value, indent + 4, seen);
+                      } else if (typeof value === 'string') {
+                          entry += `"${value}"`;
+                      } else if (typeof value === 'function') {
+                        entry += `\n${newIndent}"[Function]"`;
+                      } else if (value === undefined) {
+                        entry += `\n${newIndent}"[undefined]"`;
+                      } else {
+                          entry += value;
+                      }
+      
+                      return entry;
+                  });
+      
+                  result += entries.join(',\n');
+                  result += `\n${baseIndent}}`;
+              }
+          } else {
+              if (typeof obj === 'string') {
+                  result += `"${obj}"`;
+              } else {
+                  result += obj.toString();
+              }
+          }
+        } catch (err) {
+          result = "error making json string"
+        }
+      
+          return result;
+      }
+        </script><script crossorigin src="../libs/p5.js">
+</script>
+    <script crossorigin src="../libs/p5.sound.min.js">
+</script>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <meta charset="utf-8" />
+
+  </head>
+  <body>
+    <main>
+    </main>
+    <script language="javascript" type="text/javascript">
+let snowflakes = [];
+let catImage;
+let backgroundMusic;
+
+function preload() {
+  catImage = loadImage('Cat.png');
+  backgroundMusic = loadSound('Christmas.mp3');
+}
+
+function setup() {
+  createCanvas(640, 620);
+  backgroundMusic.loop();
+  for (let i = 0; i < 300; i++) {
+    let type = int(random(3));
+    let snowflake;
+    switch (type) {
+      case 0:
+        snowflake = new SimpleSnowflake();
+        break;
+      case 1:
+        snowflake = new StarSnowflake();
+        break;
+      case 2:
+        snowflake = new HexagonSnowflake();
+        break;
+    }
+    snowflakes.push(snowflake);
+  }
+}
+
+function draw() {
+  background(51);
+  // 绘制背景和其他元素
+  fill(250, 238, 196);
+  circle(150, 100, 80);
+  fill(210, 31, 60);
+  rect(0, 0, 640, 20);
+  rect(0, 20, 20, 600);
+  rect(20, 600, 620, 20);
+  rect(310, 20, 20, 580);
+  rect(620, 20, 20, 620);
+  rect(20, 200, 600, 20);
+  image(catImage, 430, 490, 130, 130);
+  // 更新和显示雪花
+  for (let flake of snowflakes) {
+    flake.update();
+    flake.display();
+  }
+}
+
+class Snowflake {
+  constructor() {
+    this.position = createVector(random(width), random(-100, -10));
+    this.velocity = createVector(0, random(1, 3));
+    this.acceleration = createVector(0, 0.05);
+    this.size = random(4, 10);
+  }
+
+  update() {
+    this.velocity.add(this.acceleration);
+    this.position.add(this.velocity);
+    if (this.position.y > height + this.size) {
+      this.position.y = random(-100, -10);
+      this.position.x = random(width);
+      this.velocity.y = random(1, 3);
+    }
+  }
+
+  display() {
+    fill(255);
+    stroke(255);
+    strokeWeight(2);
+    point(this.position.x, this.position.y);
+  }
+}
+
+class SimpleSnowflake extends Snowflake {
+  constructor() {
+    super();
+  }
+}
+
+class StarSnowflake extends Snowflake {
+  constructor() {
+    super();
+  }
+
+  display() {
+    fill(255);
+    stroke(255);
+    strokeWeight(2);
+    point(this.position.x, this.position.y);
+    point(this.position.x - 1, this.position.y - 1);
+    point(this.position.x + 1, this.position.y - 1);
+    point(this.position.x - 1, this.position.y + 1);
+    point(this.position.x + 1, this.position.y + 1);
+  }
+}
+
+class HexagonSnowflake extends Snowflake {
+  constructor() {
+    super();
+  }
+
+  display() {
+    fill(255);
+    stroke(255);
+    strokeWeight(2);
+    point(this.position.x, this.position.y);
+    point(this.position.x - 1, this.position.y - 1);
+    point(this.position.x + 1, this.position.y - 1);
+    point(this.position.x - 1, this.position.y + 1);
+    point(this.position.x + 1, this.position.y + 1);
+    point(this.position.x - 2, this.position.y);
+    point(this.position.x + 2, this.position.y);
+    point(this.position.x, this.position.y - 2);
+    point(this.position.x, this.position.y + 2);
+  }
+}
+
+</script>
+  </body>
+</html>
